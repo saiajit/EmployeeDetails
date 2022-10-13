@@ -4,11 +4,14 @@ import android.view.View
 import android.view.View.inflate
 import android.view.ViewGroup
 import android.widget.TextView
+
 import androidx.recyclerview.widget.RecyclerView
 import com.example.employeedetails.db.PersonDetails
 
 class PersonRVAdap():RecyclerView.Adapter<PersonViewHolder>() {
+    private val Personlist= ArrayList<PersonDetails>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PersonViewHolder {
+
         val layoutinflater = LayoutInflater.from(parent.context)// iflating list item
 
         val listItem = layoutinflater.inflate(R.layout.list_item,parent,false)
@@ -17,13 +20,16 @@ class PersonRVAdap():RecyclerView.Adapter<PersonViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: PersonViewHolder, position: Int) {
-        TODO("Not yet implemented")
+        holder.bind(Personlist[position])
     }
 
     override fun getItemCount(): Int {
-        TODO("Not yet implemented")
+        return Personlist.size
     }
-
+    fun setList(persons:List<PersonDetails>){
+        Personlist.clear()
+        Personlist.addAll(persons)
+    }
 }
 class PersonViewHolder(private val view:View):RecyclerView.ViewHolder(view){
     fun bind(person : PersonDetails){

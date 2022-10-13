@@ -19,4 +19,9 @@ class pViewModel(private val dao: PersonDao):ViewModel() {
     fun delPersonDetails(person: PersonDetails)=viewModelScope.launch {
         dao.delPD(person)
     }
+//    fun insert2PersonDetails(person: PersonDetails):List<PersonDetails>=viewModelScope.launch {
+//       var data:List<PersonDetails>= dao.insertPersonDetails(person)
+//        return data
+//    }
+
 }
