@@ -1,10 +1,15 @@
 package com.example.employeedetails
 
+import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,10 +26,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var savebtn : Button
     private lateinit var clearbtn : Button
     private lateinit var PersonRV : RecyclerView
-    private  val adap: PersonRVAdap = PersonRVAdap()
+    private lateinit var adap: PersonRVAdap
     private lateinit var viewModel: pViewModel //m
 
-
+    private lateinit var selectedPerson : PersonDetails
+    private var isListItemCLicked = false
+    private lateinit var userdeets: TextView
+    private lateinit var backbutton: Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -35,18 +43,38 @@ class MainActivity : AppCompatActivity() {
         clearbtn = findViewById(R.id.btnClear)
         PersonRV = findViewById(R.id.rvDeatails)
 
+
         initRecyclerview()
+
 
         val dao= PDb.getInstance(application).PersonDao()
         val factory= PViewModelFactory(dao)
         viewModel = ViewModelProvider(this,factory).get(pViewModel::class.java)//m
 
-        savebtn.setOnClickListener{saveDeets();clearinp()}
-        clearbtn.setOnClickListener{clearinp() }
+        savebtn.setOnClickListener{
+            if(isListItemCLicked){
+                updateDeets()
+                clearinp()
+            }else {
+                saveDeets()
+                clearinp()
+            }
+        }
+        clearbtn.setOnClickListener{
+            if (isListItemCLicked){
+                deleteDeets()
+                clearinp()
+
+            }else {
+                clearinp()
+            }
+        }
+
 
         Log.e("MyTag","message called")
 
     }
+
     private fun saveDeets(){
         viewModel.insertPersonDetails(
             PersonDetails(0,
@@ -57,13 +85,41 @@ class MainActivity : AppCompatActivity() {
         displayList()
         Log.e("MyTag","message called12")
     }
+    private fun updateDeets(){
+        viewModel.updatePersonDetails(
+            PersonDetails(
+                selectedPerson.id,
+                nameET.text.toString(),
+                EmailET.text.toString()
+            )
+        )
+
+        savebtn.text="Save"
+        clearbtn.text="Clear"
+        isListItemCLicked= false
+    }
+    private fun deleteDeets(){
+        viewModel.delPersonDetails(
+            PersonDetails(
+                selectedPerson.id,
+                nameET.text.toString(),
+                EmailET.text.toString()
+            )
+        )
+        savebtn.text="Save"
+        clearbtn.text="Clear"
+        isListItemCLicked= false
+
+    }// pickUpAct showDee
     private fun clearinp(){
         nameET.setText("")
         EmailET.setText("")
     }
     private fun initRecyclerview(){
         PersonRV.layoutManager= LinearLayoutManager(this)
-
+        adap = PersonRVAdap {
+            selectedItem:PersonDetails -> ListItemCLicked(selectedItem)
+        }
         PersonRV.adapter = adap
         // constructing recycler View
         displayList()
@@ -88,5 +144,43 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+    private fun ListItemCLicked(person:PersonDetails){
+//        Toast.makeText(
+//            this,
+//            "employee name is ${person.name}",
+//            Toast.LENGTH_LONG
+//        ).show()
+        selectedPerson = person
+        savebtn.text="Update"
+        clearbtn.text="Delete"
+        isListItemCLicked= true // boolean
+        nameET.setText(selectedPerson.name)
+        EmailET.setText(selectedPerson.email)
 
-}
+        showDeps(person)
+
+
+    }
+
+    fun showDeps(packet: PersonDetails) {
+
+        var builder: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(this)
+        builder.setCancelable(false)
+        val inflater: LayoutInflater =
+            applicationContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.view_alert, null)
+        view.visibility = View.VISIBLE
+        builder.setView(view)
+        userdeets=view.findViewById(R.id.Introtxt)
+        backbutton= view.findViewById(R.id.backbtn)
+        var alert = builder.show();
+        userdeets.text="Hello, I am ${selectedPerson.name}"
+        backbutton.setOnClickListener{
+           alert.dismiss()
+        }
+
+        alert.setCanceledOnTouchOutside(true)
+    }
+
+
+}//Reposittory 232 how tto make get and post api call in kolin

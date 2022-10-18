@@ -8,7 +8,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.employeedetails.db.PersonDetails
 
-class PersonRVAdap():RecyclerView.Adapter<PersonViewHolder>() {
+class PersonRVAdap(
+    private val clickListener:(PersonDetails)->Unit
+):RecyclerView.Adapter<PersonViewHolder>() {
     private val Personlist= ArrayList<PersonDetails>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PersonViewHolder {
 
@@ -20,7 +22,7 @@ class PersonRVAdap():RecyclerView.Adapter<PersonViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: PersonViewHolder, position: Int) {
-        holder.bind(Personlist[position])
+        holder.bind(Personlist[position],clickListener)
     }
 
     override fun getItemCount(): Int {
@@ -32,11 +34,15 @@ class PersonRVAdap():RecyclerView.Adapter<PersonViewHolder>() {
     }
 }
 class PersonViewHolder(private val view:View):RecyclerView.ViewHolder(view){
-    fun bind(person : PersonDetails){
+    fun bind(person : PersonDetails,clickListener:(PersonDetails)->Unit){
         val nametxt= view.findViewById<TextView>(R.id.tvName)
         val emailtxt= view.findViewById<TextView>(R.id.tvEmail)
         nametxt.text = person.name
         emailtxt.text = person.email
+        view.setOnClickListener(){
+            clickListener(person)
+
+        }
     }
 
 }
